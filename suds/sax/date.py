@@ -43,7 +43,7 @@ _PATTERN_DATETIME = r"^%s[T ]%s(?:%s)?$" % (_SNIPPET_DATE, _SNIPPET_TIME,
 _RE_DATE = re.compile(_PATTERN_DATE)
 _RE_TIME = re.compile(_PATTERN_TIME)
 _RE_DATETIME = re.compile(_PATTERN_DATETIME)
-
+soap_date_time_format = "%Y-%m-%dT%H:%M:%S.%fZ"
 
 class Date(UnicodeMixin):
     """
@@ -152,7 +152,8 @@ class DateTime(UnicodeMixin):
         return value
 
     def __unicode__(self):
-        return self.value.isoformat()
+        return self.value.strftime(soap_date_time_format)
+        #return self.value.isoformat()
 
 
 class Time(UnicodeMixin):
