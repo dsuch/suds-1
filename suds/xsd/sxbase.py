@@ -18,12 +18,12 @@
 The I{sxbase} module provides I{base} classes representing schema objects.
 """
 
-from logging import getLogger
 from suds import *
 from suds.xsd import *
 from suds.sax.element import Element
 from suds.sax import Namespace
 
+from logging import getLogger
 log = getLogger(__name__)
 
 
@@ -190,10 +190,7 @@ class SchemaObject(UnicodeMixin):
         @return: True if optional, else False
         @rtype: boolean
         """
-        min = self.min
-        if min is None:
-            min = '1'
-        return min == '0'
+        return self.min == '0'
 
     def required(self):
         """

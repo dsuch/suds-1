@@ -1,19 +1,18 @@
 # -*- coding: utf-8 -*-
 
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the (LGPL) GNU Lesser General Public License as
-# published by the Free Software Foundation; either version 3 of the
-# License, or (at your option) any later version.
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the (LGPL) GNU Lesser General Public License as published by the
+# Free Software Foundation; either version 3 of the License, or (at your
+# option) any later version.
 #
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Library Lesser General Public License for more details at
-# ( http://www.gnu.org/licenses/lgpl.html ).
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Library Lesser General Public License
+# for more details at ( http://www.gnu.org/licenses/lgpl.html ).
 #
 # You should have received a copy of the GNU Lesser General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+# along with this program; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 # written by: Jurko Gospodnetić ( jurko.gospodnetic@pke.hr )
 
 """
@@ -30,14 +29,8 @@ then passing that wrapper object instead.
 """
 
 if __name__ == "__main__":
-    try:
-        import pytest
-        pytest.main(["--pyargs", __file__])
-    except ImportError:
-        print("'py.test' unit testing framework not available. Can not run "
-            "'%s' directly as a script." % (__file__,))
-    import sys
-    sys.exit(-2)
+    import __init__
+    __init__.runUsingPyTest(globals())
 
 
 import suds
@@ -441,7 +434,7 @@ def test_named_parameter():
 
 
 def test_optional_parameter_handling():
-    """Missing non-optional parameters should get passed as empty values."""
+    """Missing optional parameters should not get passed at all."""
     service_from_wsdl = lambda wsdl : tests.client_from_wsdl(wsdl, nosend=True,
         prettyxml=True).service
 
@@ -623,7 +616,7 @@ def test_wrapped_parameter():
       </xsd:complexType>
       <xsd:element name="Wrapper" type="ns:WrapperType" />""", "Wrapper")
 
-    #   Make sure suds library inteprets our WSDL definitions as wrapped or
+    #   Make sure suds library interprets our WSDL definitions as wrapped or
     # bare input interfaces as expected.
     assert not _isInputWrapped(client_bare_single, "f")
     assert not _isInputWrapped(client_bare_multiple_simple, "f")

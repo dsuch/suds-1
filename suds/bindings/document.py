@@ -1,30 +1,26 @@
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the (LGPL) GNU Lesser General Public License as
-# published by the Free Software Foundation; either version 3 of the
-# License, or (at your option) any later version.
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the (LGPL) GNU Lesser General Public License as published by the
+# Free Software Foundation; either version 3 of the License, or (at your
+# option) any later version.
 #
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Library Lesser General Public License for more details at
-# ( http://www.gnu.org/licenses/lgpl.html ).
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Library Lesser General Public License
+# for more details at ( http://www.gnu.org/licenses/lgpl.html ).
 #
 # You should have received a copy of the GNU Lesser General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+# along with this program; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 # written by: Jeff Ortel ( jortel@redhat.com )
 
 """
-Provides classes for the (WS) SOAP I{document/literal}.
+Provides classes for the (WS) SOAP I{document/literal} binding.
+
 """
 
 from suds import *
 from suds.bindings.binding import Binding
 from suds.sax.element import Element
-
-from logging import getLogger
-
-log = getLogger(__name__)
 
 
 class Document(Binding):
@@ -40,16 +36,16 @@ class Document(Binding):
     a full I{document} view.
 
     More detailed description:
-    
+
     An interface is considered I{wrapped} if:
       - There is exactly one message part in that interface.
       - The message part resolves to an element of a non-builtin type.
     Otherwise it is considered I{bare}.
-    
-    I{Bare} interface is Interpreted directly as specified in the WSDL schema,
+
+    I{Bare} interface is interpreted directly as specified in the WSDL schema,
     with each message part represented by a single parameter in the suds
     library web service operation proxy interface (input or output).
-    
+
     I{Wrapped} interface is interpreted without the external wrapping document
     structure, with each of its contained elements passed through suds
     library's web service operation proxy interface (input or output)
@@ -74,19 +70,19 @@ class Document(Binding):
             n += 1
             # Skip non-existing by-choice arguments.
             # Implementation notes:
-            #   * This functionality might be better placed inside the mkparam()
-            #     function but to do that we would first need to understand more
-            #     thoroughly how different Binding subclasses in suds work and
-            #     how they would be affected by this change.
-            #   * If caller actually wishes to pass an empty choice parameter he
-            #     can specify its value explicitly as an empty string.
+            #   * This functionality might be better placed inside the
+            #     mkparam() function but to do that we would first need to
+            #     understand more thoroughly how different Binding subclasses
+            #     in suds work and how they would be affected by this change.
+            #   * If caller actually wishes to pass an empty choice parameter
+            #     he can specify its value explicitly as an empty string.
             if len(pd) > 2 and pd[2] and value is None:
                 continue
             p = self.mkparam(method, pd, value)
             if p is None:
                 continue
             if not wrapped:
-                ns = pd[1].namespace('ns0')
+                ns = pd[1].namespace("ns0")
                 p.setPrefix(ns[0], ns[1])
             root.append(p)
         return root
@@ -100,23 +96,22 @@ class Document(Binding):
     def document(self, wrapper):
         """
         Get the document root. For I{document/literal}, this is the name of the
-        wrapper element qualifed by the schema's target namespace.
+        wrapper element qualified by the schema's target namespace.
         @param wrapper: The method name.
         @type wrapper: L{xsd.sxbase.SchemaObject}
         @return: A root element.
         @rtype: L{Element}
         """
         tag = wrapper[1].name
-        ns = wrapper[1].namespace('ns0')
-        d = Element(tag, ns=ns)
-        return d
+        ns = wrapper[1].namespace("ns0")
+        return Element(tag, ns=ns)
 
     def mkparam(self, method, pdef, object):
         """
         Expand list parameters into individual parameters each with the type
         information. This is because in document arrays are simply
         multi-occurrence elements.
-        
+
         """
         if isinstance(object, (list, tuple)):
             tags = []
@@ -132,13 +127,10 @@ class Document(Binding):
         if not wrapped:
             return pts
         result = []
-        # wrapped
         for p in pts:
-            resolved = p[1].resolve()
-            for child, ancestry in resolved:
-                if child.isattr():
-                    continue
-                result.append((child.name, child, self.bychoice(ancestry)))
+            for child, ancestry in p[1].resolve():
+                if not child.isattr():
+                    result.append((child.name, child, self.bychoice(ancestry)))
         return result
 
     def returned_types(self, method):
