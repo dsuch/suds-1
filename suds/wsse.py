@@ -77,7 +77,7 @@ class Security(Object):
         @rtype: L{Element}
         """
         root = Element('Security', ns=wssens)
-#        root.set('mustUnderstand', str(self.mustUnderstand).lower())
+        root.set('mustUnderstand', str(self.mustUnderstand).lower())
         for t in self.tokens:
             root.append(t.xml())
         return root
