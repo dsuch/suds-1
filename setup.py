@@ -146,9 +146,9 @@ again.
 
 """
 
-package_name = "suds-jurko"
+package_name = "suds-ovnicraft"
 version_tag = pkg_resources.safe_version(__version__)
-project_url = "https://bitbucket.org/jurko/suds"
+project_url = "https://bitbucket.org/ovnicraft/suds"
 base_download_url = project_url + "/downloads"
 download_distribution_name = "%s-%s.tar.bz2" % (package_name, version_tag)
 download_url = "%s/%s" % (base_download_url, download_distribution_name)
@@ -185,7 +185,7 @@ extra_setup_cmdclass.update(test=PyTest)
 setup(
     name=package_name,
     version=__version__,
-    description="Lightweight SOAP client (Jurko's fork)",
+    description="Lightweight SOAP client (Ovnicraft's fork)",
     long_description=long_description,
     keywords=["SOAP", "web", "service", "client"],
     url=project_url,
@@ -207,8 +207,8 @@ setup(
     # been corrected there or not.
     author="Jeff Ortel",
     author_email="jortel@redhat.com",
-    maintainer="Jurko Gospodnetic",
-    maintainer_email="jurko.gospodnetic@pke.hr",
+    maintainer="Cristian Salamea",
+    maintainer_email="ovnicraft@gmail.com",
 
     #   See PEP-301 for the classifier specification. For a complete list of
     # available classifiers see
