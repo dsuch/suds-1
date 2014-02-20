@@ -22,12 +22,11 @@ Implemented using the 'pytest' testing framework.
 
 if __name__ == "__main__":
     import __init__
-    __init__.runUsingPyTest(globals())
+    __init__.run_using_pytest(globals())
 
 
 from suds.sax.date import (FixedOffsetTimezone, Date, DateTime, Time,
     UtcTimezone)
-from suds.xsd.sxbuiltin import XDate, XDateTime, XTime
 import tests
 
 import pytest
@@ -228,7 +227,7 @@ class TestDateTime:
         ("2013-12-31T23:59:59.99999949", 2013, 12, 31, 23, 59, 59, 999999),
         ("2013-12-31T23:59:59.9999995", 2014, 1, 1, 0, 0, 0, 0)))
     def testConstructFromString_subsecondRounding(self, string, y, M, d, h, m,
-        s, micros):
+            s, micros):
         ref = datetime.datetime(y, M, d, h, m, s, micros)
         assert DateTime(string).value == ref
 
@@ -245,7 +244,7 @@ class TestDateTime:
         ("2013-11-19T14:05:23.428068-23:59",
             2013, 11, 19, 14, 5, 23, 428068, -23, -59)))
     def testConstructFromString_timezone(self, string, y, M, d, h, m, s,
-        micros, tz_h, tz_m):
+            micros, tz_h, tz_m):
         tzdelta = datetime.timedelta(hours=tz_h, minutes=tz_m)
         tzinfo = FixedOffsetTimezone(tzdelta)
         ref = datetime.datetime(y, M, d, h, m, s, micros, tzinfo=tzinfo)
@@ -323,7 +322,7 @@ class TestTime:
         ("0:0:0.9999996", 0, 0, 1, 0),
         ("0:0:0.9999999", 0, 0, 1, 0)))
     def testConstructFromString_subsecondRounding(self, string, h, m, s,
-        micros):
+            micros):
         assert Time(string).value == datetime.time(h, m, s, micros)
 
     @pytest.mark.parametrize(
@@ -337,7 +336,7 @@ class TestTime:
         ("18:0:09.2139+10:31", 18, 0, 9, 213900, 10, 31),
         ("18:0:09.2139-10:31", 18, 0, 9, 213900, -10, -31)))
     def testConstructFromString_timezone(self, string, h, m, s, micros, tz_h,
-        tz_m):
+            tz_m):
         tzdelta = datetime.timedelta(hours=tz_h, minutes=tz_m)
         tzinfo = FixedOffsetTimezone(tzdelta)
         ref = datetime.time(h, m, s, micros, tzinfo=tzinfo)
@@ -363,101 +362,3 @@ class TestTime:
         ("14:05:23.428-23:59", "14:05:23.428000-23:59")))
     def testConvertToString(self, input, output):
         assert str(Time(input)) == output
-
-
-class TestXDate:
-    """
-    Tests for the suds.xsd.sxbuiltin.XDate class.
-
-    Python object <--> string conversion details already tested in TestDate.
-
-    """
-
-    def testTranslateEmptyStringToPythonObject(self):
-        assert XDate.translate("") == None
-
-    def testTranslateStringToPythonObject(self):
-        assert XDate.translate("1941-12-7") == datetime.date(1941, 12, 7)
-
-    def testTranslatePythonObjectToString(self):
-        date = datetime.date(2013, 7, 24)
-        translated = XDate.translate(date, topython=False)
-        assert isinstance(translated, str)
-        assert translated == "2013-07-24"
-
-    def testTranslatePythonObjectToString_datetime(self):
-        dt = datetime.datetime(2013, 7, 24, 11, 59, 4)
-        translated = XDate.translate(dt, topython=False)
-        assert isinstance(translated, str)
-        assert translated == "2013-07-24"
-
-    @pytest.mark.parametrize("source", (
-        None,
-        object(),
-        _Dummy(),
-        datetime.time()))
-    def testTranslatePythonObjectToString_failed(self, source):
-        assert XDate.translate(source, topython=False) is source
-
-
-class TestXDateTime:
-    """
-    Tests for the suds.xsd.sxbuiltin.XDateTime class.
-
-    Python object <--> string conversion details already tested in
-    TestDateTime.
-
-    """
-
-    def testTranslateEmptyStringToPythonObject(self):
-        assert XDateTime.translate("") == None
-
-    def testTranslateStringToPythonObject(self):
-        dt = datetime.datetime(1941, 12, 7, 10, 30, 22, 454000)
-        assert XDateTime.translate("1941-12-7T10:30:22.454") == dt
-
-    def testTranslatePythonObjectToString(self):
-        dt = datetime.datetime(2021, 12, 31, 11, 25, tzinfo=UtcTimezone())
-        translated = XDateTime.translate(dt, topython=False)
-        assert isinstance(translated, str)
-        assert translated == "2021-12-31T11:25:00+00:00"
-
-    @pytest.mark.parametrize("source", (
-        None,
-        object(),
-        _Dummy(),
-        datetime.time(22, 47, 9, 981),
-        datetime.date(2101, 1, 1)))
-    def testTranslatePythonObjectToString_failed(self, source):
-        assert XDateTime.translate(source, topython=False) is source
-
-
-class TestXTime:
-    """
-    Tests for the suds.xsd.sxbuiltin.XTime class.
-
-    Python object <--> string conversion details already tested in
-    TestDateTime.
-
-    """
-
-    def testTranslateEmptyStringToPythonObject(self):
-        assert XTime.translate("") == None
-
-    def testTranslateStringToPythonObject(self):
-        assert XTime.translate("10:30:22") == datetime.time(10, 30, 22)
-
-    def testTranslatePythonObjectToString(self):
-        time = datetime.time(16, 53, 12, tzinfo=FixedOffsetTimezone(4))
-        translated = XTime.translate(time, topython=False)
-        assert isinstance(translated, str)
-        assert translated == "16:53:12+04:00"
-
-    @pytest.mark.parametrize("source", (
-        None,
-        object(),
-        _Dummy(),
-        datetime.date(2101, 1, 1),
-        datetime.datetime(2101, 1, 1, 22, 47, 9, 981)))
-    def testTranslatePythonObjectToString_failed(self, source):
-        assert XTime.translate(source, topython=False) is source

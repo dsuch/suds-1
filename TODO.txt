@@ -384,7 +384,7 @@ PRIORETIZED:
 (+)           which would then get reported as 'document not found'.
 (+)     * SAX parser now accepts only byte string content instead of also
 (+)       accepting unicode strings containing latin1 characters only.
-(+)     * Make tests now specify their fixed wsdl & reply content as byte
+(+)     * Make tests now specify their fixed WSDL & reply content as byte
 (+)       strings only.
 (+)     * Make all tests pass.
 (+)         * Python 2.4.
@@ -744,23 +744,656 @@ PRIORETIZED:
 (+)     * Update release notes.
 (+)     * Report back & close the project issue on BitBucket.
 
-(27.12.2013.)
+(21.01.2014.)
 
-    * (Jurko) Process patch sent in by Bouke Haarsma on BitBucket to 'make sure
-      all web service operation parameters are consumed'.
-        * Research.
-        * Prepare tests.
-        * Merge.
-        * Thorough code review.
-        * Update release notes.
+(+) * (Jurko) Process patch sent in by Bouke Haarsma on BitBucket to 'make sure
+(+)   all web service operation parameters are consumed'.
+(+)     * This patch has been worked on on a separate feature branch for close
+(+)       to a month now.
+(+)     * Update todo list.
+(+)     * Update release notes.
+(+)     * Commit.
+(+)     * Push changes to BitBucket.
 
-    * (Jurko) Process decimal type support patch sent in by pendletongp on
-      BitBucket.
-        * Research.
-        * Prepare tests.
-        * Merge.
-        * Thorough code review.
+(23.01.2014.)
+
+(+) * (Jurko) Prepare internal documentation notes folder.
+(+)     * Add folder & add a descriptive readme.txt file to it.
+(+)     * Include in the source distribution folder.
+(+)     * Do not include it in the installation.
+(+)     * Note the new documentation notes folder in the project's HACKING.rst
+(+)       documentation.
+
+(24.01.2014.)
+
+(+) * (Jurko) Process Jurko's research & todo notes collected while working on
+(+)   reporting extra parameter errors.
+(+) * (Jurko) Prepare a new suds-jurko 0.6 release.
+(+)     * Check release notes.
+(+)     * Test.
+(+)     * Update version tag.
+(+)     * Tag in Hg.
+(+)     * Update version information.
+(+)     * Retag in Hg
+(+)     * Package the release.
+(+)     * Distribute the new release.
+(+)         * PyPI.
+(+)         * BitBucket.
+(+)         * Notify Gauthier Bastien - see comments for commit
+(+)           9da81de891958292850a242781b30a3493f617 on BitBucket.
+(+)     * Prepare project information for the next development cycle.
+
+(25.01.2014.)
+
+(+) * (Jurko) Look into issue #12 & the related pull request #22 reported on
+(+)   BitBucket - suds-jurko incorrectly returning a raw Fault() instead of a
+(+)   WebFault() object when faults=False. Reported as a regression against the
+(+)   base suds project.
+(+)     * Research.
+(+)         * Most likely introduced by commit
+(+)           '506c8362c81343f1f629906606db23daf8b426ec'.
+(+)         * Try to reproduce using an injected reply.
+(+)             * Test against the current HEAD commit.
+(+)             * Find a commit not that works correctly.
+(+)     * Status.
+(+)         * Could not reproduce the issue. Truely suds-jurko returns a
+(+)           suds.sudsobject.Fault object, but the original suds library
+(+)           implementation does not return a suds.WebFault object either.
+(+)           Further work on this can be done only once the exact desired
+(+)           behaviour is defined.
+(+)     * Ask for feedback containing a reproducible example.
+
+(26.01.2014.)
+
+(+) * (Jurko) Code cleanup.
+(+)     * Stylistic cleanup.
+(+) * (Jurko) Process decimal type support patch sent in by pendletongp on
+(+)   BitBucket.
+(+)     * Research.
+(+)         * Where a Python type to SOAP representation transformation is
+(+)           performed.
+(+)             * Expected locations.
+(+)                 * When constructing a web service operation invocation
+(+)                   request, i.e. when marshalling Python data to a SOAP
+(+)                   request XMLS (mx package).
+(+)         * Where a SOAP representation to Python type transformation is
+(+)           performed.
+(+)             * Expected locations.
+(+)                 * When processing a web service operation reply, i.e. when
+(+)                   unmarshalling Python data from a SOAP reponse XML (umx
+(+)                   package).
+
+(28.01.2014.)
+
+(+) * (Jurko) Process decimal type support patch sent in by pendletongp on
+(+)   BitBucket.
+(+)     * Prepare tests.
+(+)         * Representation tests for different data types.
+(+)         * Transformation tests for different data types.
+(+)     * Thorough code review.
+(+)     * Add XFloat tests.
+
+(29.01.2014.)
+
+(+) * (Jurko) Update XFloat to correctly translate decimal.Decimal &
+(+)   numbers.Real (on Python 2.6+) values to their XSD value representation.
+(+)   Currently, inconsistently with how other types are handled, they get
+(+)   translated to the same decimal/fraction value which then gets changed to a
+(+)   string later on when actually writing it to an XML string. This works out
+(+)   fine for decimals in the end but not for rationals/fractions.
+(+)     * Research.
+(+)         * decimal.Decimal input values already get entered correctly into
+(+)           constructed SOAP XML requests.
+(+)         * It seems not all numbers.Real derived classes can be converted to
+(+)           their XSD value representation the same way.
+(+)             * Some examples.
+(+)                 * float --> str(x)
+(+)                 * fractions.Fraction --> str(float(x))
+(+)                 * decimals.Decimal --> str(x)
+(+)                 * int --> str(x)
+(+)                 * bool --> str(int(x))
+(+)             * Adding support for them would pair down to simply listing all
+(+)               supported types explicitly and adding code for translating
+(+)               each of them separately. We can not possibly do this for 'all
+(+)               data types in the world' so the current implementation seems
+(+)               as good as any.
+(+)         * A user application requiring support for a specific type can
+(+)           always add it itself by implementing a replacement XFloat class
+(+)           and registering it using suds.xsd.xbuiltin.Factory.maptag().
+(+)     * Discard the task.
+(+)     * Add a new development note document describing XType class usage for
+(+)       built-in XSD type value translation between Python objects and their
+(+)       XSD value representations.
+(+) * (Jurko) Clean up different XType.translate() methods. See if there is any
+(+)   difference in them returning a string or any other Python object
+(+)   convertible to a string using str().
+(+)     * If there is no difference, clean up the code to simply return the
+(+)       original value where possible.
+(+) * (Jurko) Process decimal type support patch sent in by pendletongp on
+(+)   BitBucket.
+(+)     * Research.
+
+(30.01.2014.)
+
+(+) * (Jurko) Process decimal type support patch sent in by pendletongp on
+(+)   BitBucket.
+(+)     * Research.
+(+)         * XSD type value representation is incorrect.
+(+)     * Apply equivalent changes together with adding related unit tests.
+(+)     * Comment on the original issue #3 & patch request #19 on BitBucket.
+(+)     * Update release notes.
+(+)     * Later ideas to consider.
+(+)         * 'float' --> 'decimal.Decimal' conversion which has not been
+(+)           implemented in Python before Python 2.7.
+(+)             * YAGNI for now.
+(+)             * Update release notes.
+
+(31.01.2014.)
+
+(+) * (Jurko) Restore last_sent()/last_received() getters for last used SOAP
+(+)   request/response messages.
+(+)     * Research background.
+(+)         * Requested by.
+(+)             * andreebrazeau as BitBucket.
+(+)                 * 'https://bitbucket.org/andreebrazeau'.
+(+)             * FerCesar at BitBucket.
+(+)                 * 'https://bitbucket.org/FerCesar'.
+(+)             * Lucas Sampaio at BitBucket.
+(+)                 * 'https://bitbucket.org/lucassmagal'.
+(+)         * Related links.
+(+)             * 'http://stackoverflow.com/questions/4426204/
+(+)               how-can-i-output-what-suds-is-generating-receiving'.
+(+)             * 'http://jortel.fedorapeople.org/suds/doc/
+(+)               suds.client.Client-class.html'
+(+)         * Code removed in commit 'f0034d6826c179625478bc19ae2a39a0b803fc3a'.
+
+(03.02.2014.)
+
+(+) * (Jurko) Restore last_sent()/last_received() getters for last used SOAP
+(+)   request/response messages.
+(+)     * Clean up related code.
+
+(05.02.2014.)
+
+(+) * (Jurko) Clean up SoapClient/SimClient related code a bit.
+(+)     * Generic code cleanup.
+(+)     * Mark private methods using leading underscores.
+(+)     * Remove RequestContext.original_envelope attribute.
+(+)     * Stop logging incorrect 'original_envelope' value.
+(+)     * Rename to _SoapClient/_SimClient.
+
+(06.02.2014.)
+
+(+) * (Jurko) Add tests for the functionality potentially affected by a planned
+(+)   _SoapClient/_SimClient refactoring.
+(+)     * Cache - update existing tests.
+(+)         * File operation failures.
+
+(07.02.2014.)
+
+(+) * (Jurko) Update FileCache duration handling.
+(+)     * Research.
+(+)         * Currently FileCache.__set_duration() implementation allows using
+(+)           only a single unit.
+(+)         * Check whether Python 2.4 datetime.timedelta class implementation
+(+)           allows it to be constructed from multiple units.
+(+)     * Store FileCache.duration as a datetime.timedelta instance.
+(+)     * Support for specifying FileCache durations with multiple time units.
+(+)     * Add tests.
+(+)         * Default suds.Client cache.
+(+)             * Already tested in test_default_cache_construction().
+(+)                 * Class.
+(+)                 * Duration.
+(+)         * Default duration.
+(+)         * Set duration (<0, 0, >0, single/multiple duration arguments).
+(+)         * Exception on duration < 0.
+(+)             * YAGNI. Current implementation, using negative values as
+(+)               regular durations and simply adding them to a specific file
+(+)               timestamp to see whether it expired seems good enough as well
+(+)               as intuitive enough for the user.
+(+)         * Expiration after expiration time with duration > 0.
+(+)         * Not expiring after expiration time with duration = 0
+(+)         * Not expiring before expiration time with duration > 0.
+(+)         * Not expiring before expiration time with duration = 0.
+(+)         * Duration testing for all FileCache derived classes - DocumentCache
+(+)           & ObjectCache.
+(+)         * FileCache and derived classes - one item expiring should not
+(+)           affect other unexpired items.
+(+)     * Update release notes.
+(+) * (Jurko) Per process default FileCache folder randomization + removal on
+(+)   exit.
+(+)     * Research.
+(+)         * Related BitBucket issue #15.
+(+)         * Links from the BitBucket issue #15.
+(+)             * 'https://bugzilla.redhat.com/show_bug.cgi?id=978696'.
+(+)             * 'http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2013-2217'.
+
+(09.02.2014.)
+
+(+) * (Jurko) Per process default FileCache folder randomization + removal on
+(+)   exit - fix CVE-2013-2217.
+(+)     * Add tests.
+(+)     * Implement.
+(+)     * Update release notes.
+(+)     * Update related issues on BitBucket.
+(+) * (Jurko) Extract all suds.client.Client related tests related to how it
+(+)   uses its worker cache/store/transport components into separate
+(+)   test_client.py test module. Modules like test_transport.py or
+(+)   test_cache.py should concentrate on testing that specific component
+(+)   functionality and not how the component gets used by suds.client.Client.
+(+)     * Test modules to check.
+(+)         * 'test_cache.py'.
+(+)         * 'test_client_cache.py'.
+(+)         * 'test_transport.py'.
+(+)     * Several transport usage tests already prepared in test_transport_1.py
+(+)       on Jurko's notebook.
+
+(10.02.2014.)
+
+(+) * (Jurko) Add tests for the functionality potentially affected by a planned
+(+)   _SoapClient/_SimClient refactoring.
+(+)     * Client's cache/store/transport usage.
+(+)         * WSDL access.
+(+)             * If an object is found in cache it should not be looked up in
+(+)               the given document store or transported.
+(+)             * If an object is found in a given document store it should not
+(+)               be transported.
+
+(14.02.2014.)
+
+(+) * (Jurko) Clean up test_client.py test module - extract all remaining
+(+)   suds.client.Client related tests related to how it uses its worker cache/
+(+)   store/transport components.
+(+)     * Test modules to check.
+(+)         * 'test_transport_http.py'.
+(+) * (Jurko) Update test_sending_non_ascii_data_to_unicode_URL() test to test
+(+)   both send() & open() transport operations.
+
+(17.02.2014.)
+
+(+) * (Jurko) Clean up Transport ASCII/Unicode URL/data handling.
+(+)     * Design desired behaviour.
+(+)         * URL may be specfied as either a byte string or a unicode string.
+(+)         * URL input data may contain ASCII characters only.
+(+)         * URL stored internally as a native str type (byte string with
+(+)           Python versions prior to 3, unicode string with Python 3+).
+(+)             * Using it in a different format breaks the underlying
+(+)               HttpTransport httplib implementation under some Python
+(+)               versions.
+(+)         * Bytes data used directly.
+(+)         * Unicode data used directly with the underlying implementation
+(+)           converting the data to bytes or raising an error.
+(+)             * HttpTransport.
+(+)                 * Python2 - converts to bytes if ASCII chars only.
+(+)                 * Python2 - error for non-ASCII chars.
+(+)                 * Python3 - error.
+(+)     * Fix suds.transport Reply & Request string representation.
+(+)     * Update suds.transport.Request.
+(+)         * Check for non-ASCII URL characters.
+(+)         * Hold it internally as a native str type.
+(+)     * Update suds.transport.http.HttpTransport.
+(+)         * Expects the suds.transport.Request to have already checked its URL
+(+)           content.
+(+)     * Document the desired design (docstrings).
+(+)         * Request.
+(+)         * Transport.
+(+)     * Update tests.
+(+)         * Request tests.
+(+)             * Bytes URL.
+(+)                 * Must be used directly on Python 2.
+(+)                 * Must be converted to str URL internally on Python 3.
+(+)                 * Error if it includes non-ASCII character codes.
+(+)             * Unicode URL.
+(+)                 * Must be converted to str URL internally on Python 2.
+(+)                 * Must be used directly on Python 3.
+(+)                 * Error if it includes non-ASCII character codes.
+(+)         * HttpTransport tests.
+(+)             * Sending data through the network.
+(+)             * Remove tests made redundant by the new Request testing.
+(+)     * Update release notes.
+
+(18.02.2014.)
+
+(+) * (Jurko) Add tests for the functionality potentially affected by a planned
+(+)   _SoapClient/_SimClient refactoring.
+(+)     * Client's cache/store/transport usage.
+(+)         * If an object is found in cache it should not be looked up in the
+(+)           given document store or transported.
+(+)             * WSDL document.
+(+)             * Imported XSD schema.
+(+)             * Included XSD schema.
+
+(19.02.2014.)
+
+(+) * (Jurko) Add a failing test illustrating a WSDL import detected when
+(+)   attempting to test importing a cached WSDL schema.
+(+)     * test_WSDL_import().
+(+) * (Jurko) Add tests for the functionality potentially affected by a planned
+(+)   _SoapClient/_SimClient refactoring.
+(+)     * Client's cache/store/transport usage.
+(+)         * If an object is found in cache it should not be looked up in the
+(+)           given document store or transported.
+(+)             * Imported WSDL document.
+(+)         * If an object is found in a given document store it should not be
+(+)           transported.
+(+)             * WSDL document.
+(+)             * Imported WSDL document.
+(+)             * Imported XSD schema.
+(+)             * Included XSD schema.
+(+)         * If an object is not cached or found in a given document store it
+(+)           should not transported.
+(+)             * WSDL document.
+(+)             * Imported WSDL document.
+(+)             * Imported XSD schema.
+(+)             * Included XSD schema.
+(+)     * Client's cache/store/transport usage.
+(+)         * Different cachingpolicy option values.
+(+)             * cachingpolicy == 0 - XML documents are cached.
+(+)                 * Already tested.
+(+)             * cachingpolicy == 1 - final WSDL objects are cached.
+(+)                 * Loading a WSDL object from cache should avoid attempting
+(+)                   to fetch any additional external data either from the
+(+)                   cache, the document store or the registered transport.
+
+    * (Jurko) Add tests for the functionality potentially affected by a planned
+      _SoapClient/_SimClient refactoring.
+        * Transport.
+        * _SoapClient.
+            * Using Transport.
+            * 'nosend' option.
+            * 'retxml' option.
+            * 'prettyxml' option.
+            * Variants.
+                * Subclasses modifying _init_invocation_context(),
+                  _get_request() & _get_reply().
+        * _SimClient.
+            * Using Transport for sending an injected request.
+            * Not using Transport when a reply has been injected.
+            * _SimClient using injected request.
+            * _SimClient using injected reply.
+                * Success.
+                * Failure.
+                * Status & status description.
+            * 'nosend' option.
+                * With injected request data.
+                * With injected response data - ignored.
+            * 'retxml' option.
+            * 'prettyxml' option.
+        * RequestContext.
+            * Returned from _SoapClient.
+            * Returned from _SimClient.
+            * Processing an externally provided reply.
+        * Plugin processing.
+            * Variants.
+                * _SoapClient/_SimClient.
+                * _SimClient with injected reply/response.
+                * 'nosend' option + RequestContext reply.
+                * 'retxml'.
+                * 'prettyxml'.
+            * Fetched documents.
+                * document.loaded(url, bytes) --> bytes.
+                * document.parsed(url, document).
+            * Documents read from cache.
+                * document.parsed(url, document).
+            * Client initialized with WSDL.
+                * init.initialized(wsdl).
+            * SOAP requests.
+                * marshalled(document) - may modify document in-place.
+                * sending(bytes) --> bytes.
+            * SOAP replies.
+                * received(bytes) --> bytes.
+                * parsed(element) --> may modify document in-place.
+                * unmarshalled(result) --> result.
+
+    * (Jurko) Refactor _SoapClient/_SimClient related code.
+        * Refactor.
+            * Already prepared as client_1.py on Jurko's notebook but need to
+              add relevant tests first.
         * Update release notes.
+            * Client debug log messages changed.
+            * Removed the RequestContext.original_envelope attribute.
+
+    * (Jurko) See why creating two suds.client.Client instances with the same
+      transport instance fails. It reports some 'Duplicate domain "suds.options"
+      found' error.
+        t = suds.transport.Transport()
+        tests.client_from_wsdl(tests.wsdl(""), transport=t)
+        tests.client_from_wsdl(tests.wsdl(""), transport=t)
+
+    * (Jurko) Generic code cleanup.
+        * HttpTransport tests.
+            * Check for multiple build_opener() calls.
+            * Check for multiple urlopener.open() calls.
+            * Check what gets passed to the default built urlopener. Merge this
+              with externally specified urlopener testing.
+        * Add HttpTransport proxy configuration tests.
+            * See when the proxy member is set.
+            * See what the default proxy member value is for.
+            * See whether the proxy member is used at all with an externally
+              specified urlopener, and if so - if it is made redundant by using
+              such externally specified urlopeners.
+        * Add cachingpolicy option tests.
+        * Add default document store tests.
+            * Generic.
+            * suds.client.Client document store usage.
+        * See why exception raised when passing a transport to
+          suds.client.Client that is not a subclass of suds.transport.Transport
+          is formatted as it is.
+            * Class's string representation wrapped in a tuple.
+            * Uses class's repr() string representation.
+            * Double quotes used around the 'transport'.
+        * suds.store.defaultDocumentStore cleanup.
+            * See if this member should be marked as private.
+            * Rename to not use camelCase.
+        * DefinitionsReader.open() changes options on cached Definitions
+          instances. Make sure this does not break programs with multiple suds
+          Clients loading the same WSDL schema but using different options.
+        * Support for calling NoCache.purge() & NoCache.clear().
+        * Consider making FileCache.clear() remove files matching both prefix &
+          suffix instead of only the prefix.
+            * Might be ok for explicitly called clears, but not for those called
+              due to the cache version information getting changed. This might
+              need to be worked around or commented/tested in code.
+        * Make FileCache, DocumentCache & ObjectCache all consistently remove or
+          not remove cache entries on failed access. Possibly do so for the base
+          Cache class as well.
+        * Make Cache.put() not return the cached data.
+        * FileCache.put() operations should not leave behind invalid files in
+          case of failed write operations. Possibly first store a valid file
+          under a temporary name and then rename it.
+
+    * (Jurko) Restore last_sent()/last_received() getters for last used SOAP
+      request/response messages.
+        * Research.
+            * Difference between how _SoapClient & _SimClient stored their last
+              sent/received messages.
+                * Both stored them.
+                * _SimClient stored the simulated fault as its last received
+                  message.
+            * Whether sent/received messages should be returned/logged before or
+              after being processed by registered plugins.
+                * _SoapClient stored the received reply after it got processed
+                  by registered plugins.
+            * Sending with _SoapClient.
+            * Sending with _SimClient.
+            * Which plugins get called and when.
+        * Add back the removed code.
+        * Add tests.
+        * Notify people interested in this.
+
+    * (Jurko) Clean up input argument/parameter & wrapped/unwrapped terminology
+      usage in code.
+        * Synchronize all usage both in code and in relevant 'notes/' documents.
+
+    * (Jurko) Triage received issues & pull requests at BitBucket a bit and
+      prioritize them in relation to already existing todo items on this list.
+
+    * (Jurko) Process Jurko's remaining research & todo notes collected while
+      working on reporting extra parameter errors. Some are redundant or have
+      already been dealt with so the list needs to be triaged first.
+        * Fix non-optional choice element handling - missing values should be
+          used as empty strings, same as for non-choice parameters - search for
+          tests xfailed with reason 'non-optional choice handling buggy'.
+        * Add tests: which type XSD schemas do not get unwrapped automatically,
+          e.g. simple types such as built-in type restrictions.
+        * Split up test_request_construction.py tests into parameter definition,
+          argument parsing & possibly partial binding specific request
+          construction tests.
+        * Add test: single parameter pointing to an element - parameter name
+          should be ignored.
+        * Add test: single parameter pointing to an element - with unwrapping.
+        * Add test: single parameter pointing to a type - with unwrapping.
+        * Add test: single parameter pointing to a built-in type - no
+          unwrapping.
+        * Add test: multiple parameters pointing to types & elements.
+        * Add tests: WSDL tests - XSD schema content.
+        * Add tests: WSDL tests - recognized operations.
+        * Add tests: WSDL tests - recognized services.
+        * Add test: document/literal, document/encoded, rpc/literal &
+          rpc/encoded should make no difference to input processing in theory
+          and should all recognize the same input parameter structure.
+        * Add tests: WSDL tests - recognized binding - input/output - for
+          different methods - document binding should be the default - see
+          whether literal should be the default binding style.
+        * Add test: named sequence/choice/all - there is no such thing - their
+          name attributes should be ignored.
+        * Research: consider input parameter elements with missing type
+          declarations to have the type "xsd:string" or "xsd:any" or something
+          similar - check the XSD specification.
+            * '<xsd:element name="MyElement"></xsd:element>' currently used
+              wrapped.
+            * '<xsd:element name="MyElement"> </xsd:element>' currently used
+              unwrapped.
+        * Add test: unwrapped element reference input parameter.
+        * Add test: shema_object.resolve() &
+          shema_object.resolve(nobuiltin=True).
+        * Add test: explicitly marking an input parameter sequence as optional
+          should be recognized when unwrapping those input parameters - such
+          functions should report accepting 0 parameters.
+        * Add test: expected input argument count reporting with choice input
+          parameters explicitly marked optional.
+        * Add test: array parameters.
+        * Research: whether web service operations taking multiple input
+          parameter body-parts can have those body-parts simply reference other
+          elements, thus requiring us to resolve that reference before checking
+          whether the input parameter is optional (and possibly other places as
+          well - see Document.mkparam() which does no resolving for such web
+          service operations but does so for operations taking a single wrapper
+          input parameter structure).
+        * Research: see if the parameter type checked whether it is optional
+          inside Document.bodycontent() needs to have its ancestor elements
+          checked as well - this might be needed if this can actually be a
+          reference to some other, more deeply nested element.
+        * Research: can element references be chained - nope as they are allowed
+          to reference only top level elements and top level elements are
+          explicitly not allowed to use the ref attribute.
+        * Research: can element references be optional by themselves - yes, and
+          that is the only way they can be marked as optional since they may
+          only reference top-level elements and those are in turn not allowed to
+          use the minOccurs/maxOccurs attributes.
+        * Add test: extra array parameters - more than maxOccurs - possibly not
+          necessary if we want to allow suds to make such 'illegal' calls.
+        * Add test: missing regular parameters.
+        * Add test: missing non-optional choice parameters.
+        * Add test: missing optional choice parameters.
+        * Recognize missing optional values when specified as a lists/tuples
+          containing only values None and other such lists/tuples.
+        * Error when passed a list/tuple argument containing a list/tuple or
+          None.
+        * Research: web service operations taking multiple same-named parameters
+          - how they are and how they should be handled.
+        * Choice containing an empty sequence should be recognized as optional.
+        * Choice(a, sequence(b, c)) should set b to '' if it is not optional and
+          no value is given for it, but a value is given for c - same if b & c
+          roles are reversed.
+        * Research: suds does not seem to know how to handle minOccurs/maxOccurs
+          attributes specified on sequence & choice XSD schema XML elements - it
+          definitely does not recognize elements inside an optional choice or
+          sequence as optional - see how this affects input/output parameter
+          unwrapping.
+        * Add test: passing an array element value as an empty list.
+        * Add test: passing an array element value as a non-empty list.
+        * Add test: constructing requests with missing optional parameters -
+          should not be specified in the request.
+        * Add test: constructing requests with missing non-optional parameters
+          when the operation also takes some optional parameters - how this is
+          reported.
+        * Add test: constructing requests by using positional arguments when the
+          operation takes first optional input parameters and then non-optional
+          ones after that - initial positional arguments should be mapped to the
+          initial optional input parameters.
+        * Research: constructing requests with missing default parameters - see
+          whether this should be reported as an error or added to the request as
+          an empty value.
+        * Research: self.mkparam() call in Document.bodycontent() may return a
+          list in which case later setPrefix() method call on the returned
+          object will raise an AttributeError exception.
+        * Detecting and reporting multiple input parameter values specified for
+          a single input parameter choice group (empty choice group, simple
+          single choice, multiple independent choices, one choice group inside
+          another, one choice inside another but with additional elements
+          between them).
+        * Research: whether specifying an empty list or tuple for a parameter
+          should be treated the same as None - if so, add tests - possibly []/
+          (,) really skips the parameter while None gets mapped to an empty
+          value for non-optional parameters..
+        * Support for multiple same-named elements in a single input or output
+          structure - those directly back-to-back with each other can already be
+          set or accessed as arrays but we could need to support others as well.
+        * Constructing a request for a web service operation taking a single
+          empty all/choice/sequence parameter - should be the same as for
+          operations taking no parameters.
+        * Constructing requests for web service operations taking multiple
+          choice parameter groups (as positional and keyword arguments).
+        * Using a function with multiple choice parameter group values.
+        * TestExtraParameters.test_function_with_no_parameters() - why does
+          using WSDL '<xsd:element name="Wrapper" />' not work - seems not to be
+          recognized as wrapped data but if the XML element has any data (e.g. a
+          space or a new-line) then it gets recognized correctly - smells like
+          this could be a bug.
+        * Web service operation taking multiple input parameter bodyparts.
+            * None of which is an empty sequence.
+            * At least one of which is an empty sequence.
+        * Unrelated issues noticed while working on this.
+            * Document.document() - returned temporary can be inlined.
+            * Core.process() - root local variable seems redundant.
+            * Document.bodycontent() - mkparam() does not seem to be able to
+              return None but if it does, it might mess up tracking which
+              argument got used and we should document when it does that.
+            * Parsing parameter values (interpreting positional & keyword
+              arguments, mapping them to internal web service operation
+              parameters, reporting duplicate parameter values, reporting
+              unrecognized parameters and skipping ignored or None choice item
+              parameters) should not be binding class specific, i.e. it should
+              be shared for both document & rpc bindings.
+
+    * Code cleanup
+        * It seems suds ignores top-level element names & namespaces when
+          parsing server responses and instead just uses them by their index.
+          This seems wrong. Check the WSDL specification, SOAP message binding
+          and other related standards to see if the server must always return
+          its values in the correct order in which the corresponding output
+          message parts are defined in the WSDL. Plan updating suds to report
+          invalid server responses.
+        * Replace except: blocks with blocks catching specific exception types.
+        * suds.xsd.schema module imports suds.xsd.sxbuiltin.Factory as
+          BuiltinFactory but never used that reference. See if this interface is
+          perhaps documented as published and if not - remove it.
+        * Performance tuning - SchemaObject.str() should not use len(self) to
+          check whether it is empty.
+        * SchemaObject.str() - see whether any contained item information is
+          included if none of the items are instances of Content.
+        * TypedContent.qref() - see whether len(self) == 0 check for 'simple
+          types' can be improved. There should be no need to calculate the whole
+          length just to determine that the object is empty.
+        * Simple.mixed(), SimpleContent.mixed()  - see if they really need to
+          return the current object length or if they can just check whether the
+          object is empty.
+        * suds.sudsobject.footprint() - see if the len() check is really needed
+          just to see if the object is empty.
+            * Check other len() usage in suds.sudsboject.
+        * Check all 'except:' blocks to see if they actually need to be such
+          catch-all blocks.
 
     * (Jurko) Clean up the project's basic development script for running the
       full suds test suite using multiple Python interpreter versions.
@@ -778,8 +1411,27 @@ PRIORETIZED:
               folder added to the Python path and leaving the tests folder
               inside the egg folder.
 
+    * (Jurko) Look into issues #7 & #13 on BitBucket - problems loading a WSDL
+      containing a recursively defined XML schema.
+
 NON PRIORETIZED:
 =================================================
+
+    * Resolving XSD schema elements currently returns an XSD schema type object
+      representing the element's type. Different elements with matching types
+      should possibly resolve to the same XSD schema type object but currently
+      do not. See if this behaviour should be corrected.
+        * Example.
+            * XSD schema:
+                <xsd:element name="wi" type="xsd:string"/>
+                <xsd:element name="wo" type="xsd:string"/>
+            * Test code:
+                schema = client.wsdl.schema
+                element_in = schema.elements["wi", "my-namespace"]
+                element_out = schema.elements["wo", "my-namespace"]
+                assert element_in.resolve() is element_out.resolve()
+            * Both elements should possibly resolve to the same XString
+              instance, but currently they resolve to two separate ones.
 
     * Optionally make suds check that the input parameters passed to its web
       service proxy operations actually match their respective WSDL definitions.
@@ -820,7 +1472,7 @@ NON PRIORETIZED:
           'xxxtest_choice_parameter_implementation_inconsistencies' unit test
           demonstrating a problem with the current implementation.
 
-    * SoapClient 'location' cleanup.
+    * _SoapClient 'location' cleanup.
         * URL quoting, especially if specified externally by the caller instead
           of having been read from a valid WSDL schema.
 
@@ -865,10 +1517,13 @@ NON PRIORETIZED:
         * Research.
             * HTML.
             * PDF.
-        * Decide how to generate & distribute this documentation.
+        * Decide how to maintain, generate & distribute this documentation.
         * Update project HACKING notes to note the external software required
           for generating the documentation.
         * Update release procedure to include releasing the documentation.
+        * Once the official project documentation has been integrated into this
+          fork, go through existing internal project notes in our fork and see
+          how to integrate them into the official project documentation.
 
     * Research.
         * Test how optional elements under a choice work.
@@ -899,7 +1554,7 @@ NON PRIORETIZED:
         * Implement.
 
     * Prepare additional test cases.
-        * Loading a wsdl from a file as in suds.client.Client(
+        * Loading a WSDL from a file as in suds.client.Client(
           "file://localhost/Folder/aaa.wsdl").
             * Path not containing spaces.
             * Path containing spaces.
@@ -936,3 +1591,14 @@ NON PRIORETIZED:
         * For example, 'integer' or 'string' elements defined in the
           'http://schemas.xmlsoap.org/soap/encoding/' namespace (stored
           internally by suds in the store.py module).
+
+    * See whether importing an external WSDL schema can benefit from that
+      schema's WSDL object already being cached.
+        * See if this has already been implemented, and if not - implement it.
+
+    * Additional test ideas.
+        * External XSD usage (including both imported and included external XSD
+          schemas).
+            * All the different external XSD usage tests should be run in
+              scenarios when the external XSD gets used from an imported WSDL.
+            * Using an external XSD schema using another external XSD schema.

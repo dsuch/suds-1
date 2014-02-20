@@ -14,7 +14,7 @@
 # written by: Jeff Ortel ( jortel@redhat.com )
 
 """
-Contains classes for basic HTTP transport implementations.
+Basic HTTP transport implementation classes.
 
 """
 
@@ -27,7 +27,6 @@ import httplib
 import socket
 import sys
 import urllib2
-from urlparse import urlparse
 
 from logging import getLogger
 log = getLogger(__name__)
@@ -43,11 +42,11 @@ class HttpTransport(Transport):
     def __init__(self, **kwargs):
         """
         @param kwargs: Keyword arguments.
-            - B{proxy} - An http proxy to be specified on requests.
+            - B{proxy} - An HTTP proxy to be specified on requests.
                  The proxy is defined as {protocol:proxy,}
                     - type: I{dict}
                     - default: {}
-            - B{timeout} - Set the url open timeout (seconds).
+            - B{timeout} - Set the URL open timeout (seconds).
                     - type: I{float}
                     - default: 90
 
@@ -60,7 +59,7 @@ class HttpTransport(Transport):
 
     def open(self, request):
         try:
-            url = self.__get_request_url(request)
+            url = self.__get_request_url_for_urllib(request)
             log.debug('opening (%s)', url)
             u2request = urllib2.Request(url)
             self.proxy = self.options.proxy
@@ -70,7 +69,7 @@ class HttpTransport(Transport):
 
     def send(self, request):
         result = None
-        url = self.__get_request_url(request)
+        url = self.__get_request_url_for_urllib(request)
         msg = request.message
         headers = request.headers
         try:
@@ -81,10 +80,9 @@ class HttpTransport(Transport):
             log.debug('sending:\n%s', request)
             fp = self.u2open(u2request)
             self.getcookies(fp, u2request)
+            headers = fp.headers
             if sys.version_info < (3, 0):
-                headers = fp.headers.dict
-            else:
-                headers = fp.headers
+                headers = headers.dict
             result = Reply(httplib.OK, headers, fp.read())
             log.debug('received:\n%s', result)
         except urllib2.HTTPError, e:
@@ -151,9 +149,7 @@ class HttpTransport(Transport):
         @rtype: [Handler,...]
 
         """
-        handlers = []
-        handlers.append(urllib2.ProxyHandler(self.proxy))
-        return handlers
+        return [urllib2.ProxyHandler(self.proxy)]
 
     def u2ver(self):
         """
@@ -161,6 +157,7 @@ class HttpTransport(Transport):
 
         @return: The urllib2 version.
         @rtype: float
+
         """
         try:
             part = urllib2.__version__.split('.', 1)
@@ -177,17 +174,15 @@ class HttpTransport(Transport):
         return clone
 
     @staticmethod
-    def __get_request_url(request):
+    def __get_request_url_for_urllib(request):
         """
         Returns the given request's URL, properly encoded for use with urllib.
 
-        URLs are allowed to be:
-            under Python 2.x: unicode strings, single-byte strings;
-            under Python 3.x: unicode strings.
-        In any case, they are allowed to contain ASCII characters only. We
-        raise a UnicodeError derived exception if they contain any non-ASCII
-        characters (UnicodeEncodeError or UnicodeDecodeError depending on
-        whether the URL was specified as a unicode or a single-byte string).
+        We expect that the given request object already verified that the URL
+        contains ASCII characters only and stored it as a native str value.
+
+        urllib accepts URL information as a native str value and may break
+        unexpectedly if given URL information in another format.
 
         Python 3.x httplib.client implementation must be given a unicode string
         and not a bytes object and the given string is internally converted to
@@ -206,21 +201,8 @@ class HttpTransport(Transport):
         unicode.
 
         """
-        url = request.url
-        py2 = sys.version_info < (3, 0)
-        if py2 and isinstance(url, str):
-            encodedURL = url
-            decodedURL = url.decode("ascii")
-        else:
-            # On Python3, calling encode() on a bytes or a bytearray object
-            # raises an AttributeError exception.
-            assert py2 or not isinstance(url, bytes)
-            assert py2 or not isinstance(url, bytearray)
-            decodedURL = url
-            encodedURL = url.encode("ascii")
-        if py2:
-            return encodedURL  # Python 2 urllib - single-byte URL string.
-        return decodedURL  # Python 3 urllib - unicode URL string.
+        assert isinstance(request.url, str)
+        return request.url
 
 
 class HttpAuthenticated(HttpTransport):
@@ -228,6 +210,7 @@ class HttpAuthenticated(HttpTransport):
     Provides basic HTTP authentication for servers that do not follow the
     specified challenge/response model. Appends the I{Authorization} HTTP
     header with base64 encoded credentials on every HTTP request.
+
     """
 
     def open(self, request):
@@ -240,15 +223,14 @@ class HttpAuthenticated(HttpTransport):
 
     def addcredentials(self, request):
         credentials = self.credentials()
-        if not (None in credentials):
+        if None not in credentials:
             credentials = ':'.join(credentials)
-            if sys.version_info < (3,0):
-                basic = 'Basic %s' % base64.b64encode(credentials)
+            if sys.version_info < (3, 0):
+                encodedString = base64.b64encode(credentials)
             else:
                 encodedBytes = base64.urlsafe_b64encode(credentials.encode())
                 encodedString = encodedBytes.decode()
-                basic = 'Basic %s' % encodedString
-            request.headers['Authorization'] = basic
+            request.headers['Authorization'] = 'Basic %s' % encodedString
 
     def credentials(self):
         return self.options.username, self.options.password
